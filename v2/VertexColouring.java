@@ -14,20 +14,10 @@ public class VertexColouring{
     private int colours;
     
     private int[] rolesWithScene;
-    //private ArrayList<Tuple> tuples;
     private int numberOfRoles;
     private int numberOfScenes;
     private int numberOfActors;
     private int[][] tuples;
-
-    private class Tuple{
-        public int src;
-        public int dst;
-        public Tuple(int s, int d){
-            src = s;
-            dst = d;
-        }
-    }
 
     public VertexColouring(){
         io = new Kattio(System.in, System.out);
@@ -53,7 +43,6 @@ public class VertexColouring{
         // Read all edges and check if actors is in a
         // scene or not
         rolesWithScene = new int[vertices+1];
-        //tuples = new ArrayList<Tuple>(edges);
         tuples = new int[vertices+1][vertices+1];
         for(int i = 0; i < edges; i++){
             
@@ -70,7 +59,6 @@ public class VertexColouring{
                 rolesWithScene[b] = 1;
             }            
             //For later print
-            //tuples.add(new Tuple(a,b));
             if(tuples[a][b] != 1 && tuples[b][a] != 1){
                 numberOfScenes++;
                 tuples[a][b] = 1;
@@ -90,7 +78,11 @@ public class VertexColouring{
         //2 scenes with 1 relation each added
         numberOfScenes +=2;
         //2 more actors to act as divas 
-        numberOfActors = colours + 2; //(third role can be anyone)
+        if(numberOfActors < numberOfRoles){
+            numberOfActors = colours + 2; //(third role can be anyone)
+        }else{
+            numberOfActors = numberOfRoles + 2;
+        }
         
         System.out.println(numberOfRoles);
         System.out.println(numberOfScenes);
@@ -98,9 +90,9 @@ public class VertexColouring{
         
         //Manually print divas roles which is 1 and 2
         //Let 3 be the role that plays against the divas
-        System.out.println("1 1");
-        System.out.println("1 2");
-        System.out.println("1 3");
+        System.out.println("1 1"); //Roll 1
+        System.out.println("1 2"); //Roll 2
+        System.out.println("1 3"); //Roll 3
         
         //More work needs to be done after this to ensure
         //that we also have 2 scenes to fill these actors int
@@ -148,12 +140,6 @@ public class VertexColouring{
      */
     private void printScenes(){
         // Scene 1 and 2 have already been printed
-        //for(Tuple t: tuples){
-        //    // Offset by 3 because role 1,2 and 3 are already casted
-        //    // and isn't part of colouring graph
-        //    //       #roles   #first role + 3         #second role + 3
-        //    System.out.println("2 " + (t.src+3) + " " + (t.dst+3));
-        //}
         for(int i = 0; i <= vertices; i++){
             for(int j = 0; j <= vertices; j++){
                 if(tuples[i][j] != 0){
