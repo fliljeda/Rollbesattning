@@ -69,10 +69,10 @@ public class VertexColouring {
         /*
             Remove all roles and edges that have fewer then colour edges and decrease number of roles and scenes.
          */
-        for (int i = 0; i < rolesWithScene.length; i++) {
-            if (rolesWithScene[i] < colours && rolesWithScene[i] > 0) {
-                for (int j = 0; j < rolesWithScene.length; j++) {
-                    if (rolesWithScene[j] < colours && tuples[i][j] != 0) {
+        for (int i = 0; i < rolesWithScene.length; i++) {  // check node
+            if (rolesWithScene[i] < colours && rolesWithScene[i] > 0) { // check number of colours
+                for (int j = 0; j < rolesWithScene.length; j++) { // check all neighbours
+                    if (rolesWithScene[j] < colours && tuples[i][j] != 0) { //
                         tuples[i][j] = 0;
                         rolesWithScene[i]--;
                         rolesWithScene[j]--;
