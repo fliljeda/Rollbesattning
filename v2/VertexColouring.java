@@ -5,9 +5,6 @@
  * in that format and it might be easier to read
  */
 
-import java.util.*;
-
-
 public class VertexColouring {
     private Kattio io;
     private int vertices;
