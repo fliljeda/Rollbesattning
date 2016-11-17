@@ -5,6 +5,7 @@
  * in that format and it might be easier to read
  */
 import java.util.*;
+import java.io.*;
 
 
 public class VertexColouring{
@@ -12,20 +13,15 @@ public class VertexColouring{
     private int vertices;
     private int edges;
     private int colours;
-    
-    private int[] rolesWithScene;
-    private int numberOfRoles;
-    private int numberOfScenes;
-    private int numberOfActors;
-    private int[][] tuples;
 
     public VertexColouring(){
         io = new Kattio(System.in, System.out);
         readGraphFormat();
+        //TODO Make sure independant vertices are left out
         ensureDivaRules();
         printRoles();
         ensureDivaRules2();
-        printScenes();
+        readAndPrintScenes();
     }
     
     /* Simply reads the initial values of the graph */
@@ -38,54 +34,6 @@ public class VertexColouring{
         
         //Actors
         colours = io.getInt();
-        
-
-        // Read all edges and check if actors is in a
-        // scene or not
-        rolesWithScene = new int[vertices+1];
-        tuples = new int[vertices+1][vertices+1];
-        for(int i = 0; i < edges; i++){
-            
-            //Check if this role is in a scene
-            int a = io.getInt();
-            if(rolesWithScene[a] == 0){
-                numberOfRoles++;
-            }            
-                
-            //Check if this role is in a scene
-            int b = io.getInt();
-            if(rolesWithScene[b] == 0){
-                numberOfRoles++;
-            }            
-            //For later print
-            if(tuples[a][b] == 0 && tuples[b][a] == 0){
-                numberOfScenes++;
-                rolesWithScene[a]++;
-                rolesWithScene[b]++;
-                tuples[a][b] = 1;
-                tuples[b][a] = 1;
-            }
-        }
-        
-        
-        for(int i = 0; i < rolesWithScene.length; i++){
-            if(rolesWithScene[i] < colours && rolesWithScene[i] > 0){
-                for(int j = 0; j < rolesWithScene.length; j++){
-                    if(rolesWithScene[j] < colours && tuples[i][j] != 0){
-                        tuples[i][j] = 0;
-                        rolesWithScene[i]--;
-                        rolesWithScene[j]--;
-                        numberOfScenes--;
-                        if(rolesWithScene[i] == 0){
-                            numberOfRoles--;
-                        }
-                        if(rolesWithScene[j] == 0){
-                            numberOfRoles--;
-                        }
-                    }
-                }
-            }
-        }
     }
     
     /* Divas rules can be fixed by simply adding 3 roles
@@ -96,25 +44,21 @@ public class VertexColouring{
      */
     private void ensureDivaRules(){
         //3 more roles
-        numberOfRoles += 3;
-        //2 scenes with 1 relation each added
-        numberOfScenes +=2;
+        vertices+=3;
+        //2 scenes with 1 relation each
+        edges +=2;   
         //2 more actors to act as divas 
-        if(colours < numberOfRoles){
-            numberOfActors = colours + 2; //(third role can be anyone)
-        }else{
-            numberOfActors = numberOfRoles + 2;
-        }
+        colours +=2; //(third role can be anyone)
         
-        System.out.println(numberOfRoles);
-        System.out.println(numberOfScenes);
-        System.out.println(numberOfActors);
+        System.out.println(vertices);
+        System.out.println(edges);
+        System.out.println(colours);
         
         //Manually print divas roles which is 1 and 2
         //Let 3 be the role that plays against the divas
-        System.out.println("1 1"); //Roll 1
-        System.out.println("1 2"); //Roll 2
-        System.out.println("1 3"); //Roll 3
+        System.out.println("1 1");
+        System.out.println("1 2");
+        System.out.println("1 3");
         
         //More work needs to be done after this to ensure
         //that we also have 2 scenes to fill these actors int
@@ -130,17 +74,17 @@ public class VertexColouring{
         
         //Since all roles will contain the same information we can
         //use one string object.
-        StringBuilder roleString = new StringBuilder(2*numberOfActors);
+        StringBuilder roleString = new StringBuilder(2*colours);
         
         //Roles can be played by all actors except 1 and 2
-        roleString.append(numberOfActors - 2); // all except 1,2
-        for(int i = 3; i <= numberOfActors; i++){ //from 3->|{actors}|
+        roleString.append(colours - 2); // all except 1,2
+        for(int i = 3; i <= colours; i++){ //from 3->|{actors}|
             roleString.append(' ');
             roleString.append(i);
         }
 
         //offset 1,2,3
-        for(int i = 4; i <= numberOfRoles; i++){ //every role 
+        for(int i = 4; i <= vertices; i++){ //every role 
             System.out.println(roleString);
         }
     }
@@ -160,14 +104,13 @@ public class VertexColouring{
      * in the edges because we added 3 extra roles which is not
      * part of the real graph of which we are trying to colour.
      */
-    private void printScenes(){
+    private void readAndPrintScenes(){
         // Scene 1 and 2 have already been printed
-        for(int i = 0; i <= vertices; i++){
-            for(int j = 0; j <= vertices; j++){
-                if(tuples[i][j] != 0){
-                    System.out.println("2 " + (i+3) + " " + (j+3));
-                }
-            }
+        for(int i = 3; i <= edges; i++){
+            // Offset by 3 because role 1,2 and 3 are already casted
+            // and isn't part of colouring graph
+            //       #roles   #first role + 3         #second role + 3
+            System.out.println("2 " + (io.getInt()+3) + " " + (io.getInt()+3));
         }
     }
 
