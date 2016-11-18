@@ -6,16 +6,17 @@
  */
 
 public class VertexColouring {
-    private Kattio io;
-    private int vertices;
-    private int edges;
-    private int colours;
 
-    private int[] rolesWithScene;
+    private Kattio io;
+    private int vertices; // number of vertices in read graph
+    private int edges; // number of edges in read graph
+    private int colours; // number of colours in read graph
+
+    private int[] rolesWithScene; // number of edges per node
     private int numberOfRoles;
     private int numberOfScenes;
     private int numberOfActors;
-    private int[][] tuples;
+    private int[][] tuples; // adjacency matrix
 
     public VertexColouring() {
         io = new Kattio(System.in, System.out);
@@ -37,27 +38,24 @@ public class VertexColouring {
         //Actors (colours)
         colours = io.getInt();
 
-        /*
-            Read all edges and check if role is in a scene or not,
-            if it isn't in a scene (have any edges) remove them.
-         */
+        // Read all edges and check if role is in a scene or not
         rolesWithScene = new int[vertices + 1];
         tuples = new int[vertices + 1][vertices + 1];
         for (int i = 0; i < edges; i++) {
 
-            //Check if this role is in a scene and increment numberOfRoles.
+            // Check if this role have been counted already. If not, increment numberOfRoles.
             int a = io.getInt();
             if (rolesWithScene[a] == 0) {
                 numberOfRoles++;
             }
 
-            //Check if this role is in a scene and increment numberOfRoles.
+            // Check if this role have been counted already. If not, increment numberOfRoles.
             int b = io.getInt();
             if (rolesWithScene[b] == 0) {
                 numberOfRoles++;
             }
 
-            // Count number of scenes and manipulate touples (adjacency matrix).
+            // Count number of scenes and manipulate adjacency matrix.
             if (tuples[a][b] == 0 && tuples[b][a] == 0) {
                 numberOfScenes++;
                 rolesWithScene[a]++;
@@ -67,12 +65,12 @@ public class VertexColouring {
         }
 
         /*
-            Remove all roles and edges that have fewer then colour edges and decrease number of roles and scenes.
+            (Remove all edges and decrease roles) that have fewer then # colour edges.
          */
-        for (int i = 0; i < rolesWithScene.length; i++) {  // check node
-            if (rolesWithScene[i] < colours && rolesWithScene[i] > 0) { // check number of colours
-                for (int j = 0; j < rolesWithScene.length; j++) { // check all neighbours
-                    if (rolesWithScene[j] < colours && tuples[i][j] != 0) { //
+        for (int i = 0; i < rolesWithScene.length; i++) {  // edge vector
+            if (rolesWithScene[i] < colours && rolesWithScene[i] > 0) { // check if colours are less then number of edges for role
+                for (int j = 0; j < rolesWithScene.length; j++) { // for all neighbours
+                    if (rolesWithScene[j] < colours && tuples[i][j] != 0) { // check if colours are less then number of edges for neighbours role
                         tuples[i][j] = 0;
                         rolesWithScene[i]--;
                         rolesWithScene[j]--;
@@ -89,17 +87,13 @@ public class VertexColouring {
         }
     }
 
-    /* Diva rules can be fixed by adding 3 roles
-     * and two scenes which makes it always true.
-     */
     private void ensureDivaRules() {
 
         numberOfRoles += 3;
         numberOfScenes += 2;
 
-        // 2 more actors to act as divas
-        if (colours < numberOfRoles) {
-            numberOfActors = colours + 2; // (third role can be anyone)
+        if (colours < numberOfRoles) { // if we have fewer actors then nodes proceed as normal
+            numberOfActors = colours + 2;
         } else {
             numberOfActors = numberOfRoles + 2;
         }
@@ -110,14 +104,12 @@ public class VertexColouring {
 
         System.out.println("1 1"); // Role 1 must be actor 1 (diva)
         System.out.println("1 2"); // Role 2 must be actor 2 (diva)
-        System.out.println("1 3"); // Roll 3 (can be anyone except divas but set to 3)
+        System.out.println("1 3"); // Roll 3 (can be anyone except divas, but set to 3)
     }
 
     private void printRoles() {
 
-        /*
-            Build the role string. Starting at role 3. 1 and 2 are divas.
-         */
+        // Build the role string. Starting at role 3. 1 and 2 are divas.
         StringBuilder roleString = new StringBuilder(2 * numberOfActors);
         roleString.append(numberOfActors - 2); // all except 1, 2
         for (int i = 3; i <= numberOfActors; i++) { //from 3->|{actors}|
@@ -125,10 +117,8 @@ public class VertexColouring {
             roleString.append(i);
         }
 
-        /*
-            Print the role string
-         */
-        for (int i = 4; i <= numberOfRoles; i++) { //every role
+        // Print the role string
+        for (int i = 4; i <= numberOfRoles; i++) {
             System.out.println(roleString);
         }
     }
@@ -138,15 +128,9 @@ public class VertexColouring {
         System.out.println("2 2 3"); // diva 2 is casted
     }
 
-    /* Printing the edges that are given in the graph. Here we 
-     * let an edge describe a scene with 2 roles. 
-     * Important here is that we have to offset the roles given 
-     * in the edges because we added 3 extra roles which is not
-     * part of the real graph of which we are trying to colour.
-     */
+    // Print all edges in adjacency matrix.
     private void printScenes() {
-        // Scene 1 and 2 have already been printed
-        for (int i = 0; i <= vertices; i++) {
+        for (int i = 0; i <= vertices; i++) { // Scene 1 and 2 have already been printed
             for (int j = 0; j <= vertices; j++) {
                 if (tuples[i][j] != 0) {
                     System.out.println("2 " + (i + 3) + " " + (j + 3));
